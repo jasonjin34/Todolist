@@ -1,0 +1,148 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <!--<script src="../node_modules/jquery/dist/jquery.min.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="js/test.js"></script>
+</head>
+
+<body>
+    <!--
+    <button id="hide">hide</button>
+    <button id="show">show</button>
+    <p>test</p>
+
+    <p>List 1:</p>
+    <ul>
+        <li>Coffee</li>
+        <li>Milk</li>
+        <li>Tea</li>
+    </ul>
+
+    <p>List 2:</p>
+    <ul>
+        <li>Coffee</li>
+        <li>Milk</li>
+        <li>Tea</li>
+    </ul>
+
+    <button id="hide_firstelement">hide first list element</button>
+
+
+    <p>
+        <a href="www.google.de" target="_blank">Google</a>
+    </p>
+    <p>
+        <a href="www.facebook.com">Facebook</a>
+    </p>
+
+
+    <button id="eraselinks">hide link</button>
+    <button id="showlinks">show link</button>
+
+    <button id="hidebutton">hide button</button>
+
+    <table border="1">
+        <tr>
+            <th>fruit</th>
+            <th>color</th>
+        </tr>
+        <tr>
+            <th>apple</th>
+            <th>red</th>
+        </tr>
+        <tr>
+            <th>banana</th>
+            <th>yellow</th>
+        </tr>
+    </table>
+
+    <button id="changebackground">change color</button>
+
+    <p></p>
+    <button id="callback">hide_callback</button>
+
+    <script>
+        $(document).ready(function () {
+            $("#button_hide_show").click(function () {
+                //$("#p_hide").css("color","blue").slideUp(2000).slideDown(2000);
+                $("#p_hide").css("color", "blue").slideUp(2000, function () {
+                    $("#p_hide").slideDown(2000, function () {
+                        $("#p_hide").css("color", "black");
+                    })
+                })
+            })
+        })
+    </script>
+    <p id="p_hide">button hide and show</p>
+    <button id="button_hide_show">hide&show</button>
+
+    <script>
+        $(document).ready(function () {
+            $("#bnt1").click(function () {
+                alert($("#test").text());
+                console.log("Text information from tag id test" + $("#test").text() +"\n" + "the html context:"+$("#test").html());
+            });
+        })
+    </script>
+
+    <p id="test">Test paragraph for <em> html() and text()</em> the get content</p>
+    <button id="bnt1">get text</button>
+-->
+    <script>
+        var idnumber = 0;
+
+        function pTolistElement(name,type) {
+            this.taskname = name;
+            this.tasktype = type;
+        }
+
+        //show the task element
+        $(document).ready(function () {
+            $("#bShow").click(function () {
+                alert("Value: " + $("#input_list").val());
+            });
+            //push task in the list bottom
+            $("#bAdd").click(function () {
+                var idstring = "li" + idnumber;// generate new id
+                $("#to_do_list").append("<li id=" + idstring + ">" + $("#input_list").val() + "</li>");
+                document.getElementById(idstring).onclick = function () {
+                    console.log("test click");// click test function
+                    $("#" + idstring).remove();
+                }
+                idnumber++;
+            })
+            //add from the top
+            $("#bAdd_top").click(function () {
+                var idstring = "li" + idnumber;// generate new id
+                var inputtext = document.createElement("li");
+                inputtext.id = idstring;
+                inputtext.innerHTML = $("#input_list").val();
+                $("#to_do_list").prepend(inputtext);
+
+                document.getElementById(idstring).onclick = function () {
+                    $("#" + idstring).remove();
+                }
+                idnumber++;
+            })
+        });
+
+    </script>
+
+    <p>Enter tasks:
+        <input type="input_text" id="input_list" value="">
+    </p>
+    <button id="bShow">Show tasks</button>
+    <button id="bAdd">Add task</button>
+    <button id="bAdd_top">Important task</button>
+
+
+
+    <ul id="to_do_list">
+    </ul>
+
+
+</body>
+
+</html>

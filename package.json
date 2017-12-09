@@ -1,0 +1,26 @@
+{
+  "name": "to_do_list",
+  "version": "1.0.0",
+  "description": "test to do list",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "browser-sync": "^2.18.13",
+    "fs-extra": "^4.0.3",
+    "gulp": "^3.9.1",
+    "jquery": "^3.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonjin34/Todolist.git"
+  },
+  "author": "jasojin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jasonjin34/Todolist/issues"
+  },
+  "homepage": "https://github.com/jasonjin34/Todolist#readme"
+}
