@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utef-8">
-    <title>Bootstrap Example</title>
+    <title>To do list</title>
 
     <!-- Last complied and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
@@ -30,32 +30,40 @@
     </style>
     <script>
         var idnumber = 0;
-        //todolistelement prototype
-        function show() {
-            var length_finishtasks = aFinishtask.length;
-            var text = "<ol>";
-            text += "<p><b>Name &nbsp &nbsp Type  &nbsp &nbsp &nbsp  Finish Time </b> </p>";
-            for (var i = 0; i < length_finishtasks; i++) {
-                text += "<li> &nbsp " + aFinishtask[i].output() + "</li>";
-            }
-            text += "</ol>";
-            document.getElementById("finish_tasks").innerHTML = text;
-            
-        }
+        //initial finished element array and idnumber
+        if (localStorage.finishlist != "") var aFinishtask = JSON.parse(localStorage.finishlist);
+        if (localStorage.finishlist == "") var aFinishtask = new Array;
+        if (localStorage.todolist == "") var aTodolist = new Array;
+        if (localStorage.todolist != "") var aTodolist = JSON.parse(localStorage.todolist);
 
+
+        //todolistelement prototype
         function pTolistElement(name, type, status, time) {
             this.taskname = name;
             this.tasktype = type;
             this.taskstatus = status;
             this.finishtime = time;
-
-            this.output = function () {
-                console.log(this.taskname + this.tasktype + this.taskstatus);
-                return this.taskname + "&nbsp &nbsp &nbsp" + this.tasktype + "&nbsp &nbsp &nbsp" + this.finishtime;
-            }
         }
-        //initial finished element array
-        var aFinishtask = new Array;
+
+        //show function
+        function show() {
+            var length_finishtasks = aFinishtask.length;
+            var text = "<ol>";
+            text += "<p><b>Name &nbsp &nbsp Type  &nbsp &nbsp &nbsp  Finish Time </b> </p>";
+            for (var i = 0; i < length_finishtasks; i++) {
+                text += "<li> &nbsp" + aFinishtask[i].taskname + "&nbsp &nbsp &nbsp" + aFinishtask[i].tasktype + "&nbsp &nbsp &nbsp" + aFinishtask[i].finishtime + "</li>";
+            }
+            text += "</ol>";
+            document.getElementById("finish_tasks").innerHTML = text;
+
+            localStorage.setItem("finishlist", JSON.stringify(aFinishtask));
+        }
+
+        //the function of storing the todolist event in the todolist array
+        function addtodolist(input) {
+            aTodolist.push(input);
+            localStorage.setItem("todolist", JSON.stringify(aTodolist));
+        }
 
         //enter key function for input data
         function fEnterkey(event) {
@@ -65,6 +73,7 @@
                     var idstring = "li" + idnumber;// generate new id
                     $("#to_do_list").append("<li id=" + idstring + ">" + $("#input_list").val() + "</li>");
                     var name = $('#input_list').val();
+                    addtodolist(name);
                     //clear the input text
                     $("#input_list").val("");
 
@@ -74,6 +83,7 @@
                         aFinishtask.push(new pTolistElement(name, "normal", "finish", new Date().toDateString()));
                         console.log("test click");// click test function
                         $("#" + idstring).remove();
+
                         show();
                     }
                     idnumber++;
@@ -87,6 +97,7 @@
 
         //show the task element
         $(document).ready(function () {
+            show();
             //push task in the list bottom
             $("#bAdd").click(function () {
                 if ($("#input_list").val() == "") {
@@ -135,6 +146,8 @@
 
             $("#clearall").click(function () {
                 aFinishtask.length = 0;
+                localStorage.finishlist = "";
+                localStorage.todolist = "";
                 show();
             })
 
@@ -142,15 +155,18 @@
 
     </script>
 
+
+
     <p>Enter tasks:
         <input type="input_text" onkeydown="fEnterkey(event)" id="input_list" value="" size="10">
     </p>
     <button id="bAdd">Add task</button>
     <button id="bAdd_top">Important task</button>
 
-    <h2>
+    <h3>
         <b> To do list </b>
-    </h2>
+    </h3>
+
     <ul id="to_do_list">
     </ul>
 
@@ -164,7 +180,7 @@
         <button id="clearall">clear all the tasks</button>
     </p>
 
-    
+
 
 </body>
 
