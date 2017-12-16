@@ -2,184 +2,105 @@
 <html>
 
 <head>
-    <meta charset="utef-8">
-    <title>To do list</title>
-
-    <!-- Last complied and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
-
-    <!-- jQuery library -->
+    <!--<script src="../node_modules/jquery/dist/jquery.min.js"></script>-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-    <!-- Popper js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
-
-    <!-- compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
-
-    <!-- mobile adjustement -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/test.js"></script>
 </head>
 
 <body>
-    <style>
-        .tab {
-            position: absolute;
-            left: 10em;
-        }
-    </style>
     <script>
-        var idnumber = 0;
-        //initial finished element array and idnumber
-        if (localStorage.finishlist != "") var aFinishtask = JSON.parse(localStorage.finishlist);
-        if (localStorage.finishlist == "") var aFinishtask = new Array;
-        if (localStorage.todolist == "") var aTodolist = new Array;
-        if (localStorage.todolist != "") var aTodolist = JSON.parse(localStorage.todolist);
-
-
-        //todolistelement prototype
-        function pTolistElement(name, type, status, time) {
-            this.taskname = name;
-            this.tasktype = type;
-            this.taskstatus = status;
-            this.finishtime = time;
-        }
-
-        //show function
-        function show() {
-            var length_finishtasks = aFinishtask.length;
-            var text = "<ol>";
-            text += "<p><b>Name &nbsp &nbsp Type  &nbsp &nbsp &nbsp  Finish Time </b> </p>";
-            for (var i = 0; i < length_finishtasks; i++) {
-                text += "<li> &nbsp" + aFinishtask[i].taskname + "&nbsp &nbsp &nbsp" + aFinishtask[i].tasktype + "&nbsp &nbsp &nbsp" + aFinishtask[i].finishtime + "</li>";
+        $(document).ready(function () {
+            if (localStorage.getItem("idnumber") == null) {
+                var idnumber = 0;
             }
-            text += "</ol>";
-            document.getElementById("finish_tasks").innerHTML = text;
+            else var idnumber = localStorage.getItem("idnumber");
 
-            localStorage.setItem("finishlist", JSON.stringify(aFinishtask));
-        }
+            //save the first localstorage for the finishedlist
+            if (localStorage.getItem("finishedlist") == " ") {
+                var aFinishtask = new Array;
+            }
+            else {
+                aFinishtask = JSON.parse(localStorage.getItem("finishedlist"));
+            }
 
-        //the function of storing the todolist event in the todolist array
-        function addtodolist(input) {
-            aTodolist.push(input);
-            localStorage.setItem("todolist", JSON.stringify(aTodolist));
-        }
+            //output from the saved to do list
+            if (localStorage.length != 0) {
+                for (var i = 0; i < localStorage.length - 2; i++) {
+                    var listID = "li" + i;
+                    $("#to_do_list").append("<li id=" + listID + ">" + localStorage.getItem(listID) + "</li>");
+                }
+            }
 
-        //enter key function for input data
-        function fEnterkey(event) {
-            var x = event.key;
-            if (x == "Enter" && $("#input_list").val() != "") {
-                $(document).ready(function () {
-                    var idstring = "li" + idnumber;// generate new id
-                    $("#to_do_list").append("<li id=" + idstring + ">" + $("#input_list").val() + "</li>");
-                    var name = $('#input_list').val();
-                    addtodolist(name);
-                    //clear the input text
+            //output from the finished 
+            if (aFinishtask != null) {
+                for (var i = 0; i < aFinishtask.length; i++) {
+                    if (aFinishtask.length == 0) break;
+                    $("#finish_tasks").append("<li>" + aFinishtask[i] + "</li>");
+                }
+            }
+            else if(aFinishtask == null)
+            {
+                aFinishtask = new Array;
+            }
+
+            //todolistelement prototype
+            function pTolistElement(name, type, status, time) {
+                this.taskname = name;
+                this.tasktype = type;
+                this.taskstatus = status;
+                this.finishtime = time;
+            }
+
+            $("#input_list").keypress(function (event) {
+                if (event.which == 13 && $("#input_list").val()) {
+                    var IDlistelement = "li" + idnumber;
+                    $("#to_do_list").append("<li id=" + IDlistelement + ">" + $("#input_list").val() + "</li>");
+                    //save data to the localstorage
+                    localStorage.setItem(IDlistelement, $("#input_list").val());
                     $("#input_list").val("");
 
-                    //delete function
-                    document.getElementById(idstring).onclick = function () {
-                        //save the finished element in the finisharray
-                        aFinishtask.push(new pTolistElement(name, "normal", "finish", new Date().toDateString()));
-                        console.log("test click");// click test function
-                        $("#" + idstring).remove();
-
-                        show();
-                    }
+                    //test idnumber
+                    console.log(idnumber);
                     idnumber++;
-                })
-            }
-            else if ($("#input_list").val() == "" && x == "Enter") {
-                alert("please enter the valid tasks name\n task name can not be empty");
-                return;
-            }
-        }
-
-        //show the task element
-        $(document).ready(function () {
-            show();
-            //push task in the list bottom
-            $("#bAdd").click(function () {
-                if ($("#input_list").val() == "") {
-                    alert("please enter the valid tasks name\n task name can not be empty");
-                    return;
+                    localStorage.setItem("idnumber", JSON.stringify(idnumber));
                 }
-                var idstring = "li" + idnumber;// generate new id
-                $("#to_do_list").append("<li id=" + idstring + ">" + $("#input_list").val() + "</li>");
-                var name = $('#input_list').val();
-                $("#input_list").val("");
-
-                //delete function
-                document.getElementById(idstring).onclick = function () {
-                    //save the finished element in the finisharray
-                    aFinishtask.push(new pTolistElement(name, "normal", "finish", new Date().toDateString()));
-                    console.log("test click");// click test function
-                    $("#" + idstring).remove();
-                    //refresh the finished task lists
-                    show();
-                }
-                idnumber++;
             })
-            //add from the top
-            $("#bAdd_top").click(function () {
-                if ($("#input_list").val() == "") {
-                    alert("please enter the valid tasks name \n task name can not be empty");
-                    return;
-                }
-                var idstring = "li" + idnumber;// generate new id
-                var inputtext = document.createElement("li");
-                inputtext.id = idstring;
-                inputtext.innerHTML = $("#input_list").val();
-                var name = $('#input_list').val();
-                $("#to_do_list").prepend(inputtext);
-                $("#input_list").val("");
+            $("#to_do_list").on("click", "li", function (event) {
+                //test for eventlistener and get the li id
+                console.log($(this).attr("id"))
+                var IDfinish = $(this).attr("id");
 
+                //tests function
+                console.log($(this).text());
+                console.log(aFinishtask);
 
-                document.getElementById(idstring).onclick = function () {
-                    aFinishtask.push(new pTolistElement(name, "important", "finish", new Date().toDateString()));
-                    $("#" + idstring).remove();
-                    //refresh the finished task lists
-                    show();
-                }
-                idnumber++;
+                aFinishtask.push($(this).text());
+                $("#finish_tasks").append("<li>" + $(this).text() + "</li>");
+
+                localStorage.removeItem(IDfinish);
+                $("#" + IDfinish).remove();
+                localStorage.setItem("finishedlist",JSON.stringify(aFinishtask));
             })
 
-            $("#clearall").click(function () {
-                aFinishtask.length = 0;
-                localStorage.finishlist = "";
-                localStorage.todolist = "";
-                show();
+            $("#bClear").click(function () {
+                localStorage.clear();
+                location.reload();
             })
-
-        });
-
+        })
     </script>
-
-
-
     <p>Enter tasks:
-        <input type="input_text" onkeydown="fEnterkey(event)" id="input_list" value="" size="10">
+        <input type="input_text" id="input_list" value="" size="10">
+        <button id="bClear" size="5">Clear the list</button>
     </p>
-    <button id="bAdd">Add task</button>
-    <button id="bAdd_top">Important task</button>
-
-    <h3>
+    <h2>
         <b> To do list </b>
-    </h3>
-
+    </h2>
     <ul id="to_do_list">
     </ul>
-
-
     <p>
         <b>Finished Tasks Lists</b>
         <p id="finish_tasks"></p>
     </p>
-
-    <p>
-        <button id="clearall">clear all the tasks</button>
-    </p>
-
 
 
 </body>
