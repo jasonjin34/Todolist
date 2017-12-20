@@ -27,6 +27,7 @@
 
     <!-- mobile adjustement -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
 </head>
 
 <body>
@@ -48,14 +49,11 @@
             }
 
             //output from the saved to do list
-            if (localStorage.length != 0) {
-                var length;
-                if (localStorage.getItem("finishedlist") == null) length = localStorage.length - 1;
-                else length = localStorage.length - 2;
-
-                for (var i = 0; i < length; i++) {
-                    var listID = "li" + i;
-                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + listID + ">" + localStorage.getItem(listID) + sCloseiconbutton + "</li>");
+            if (localStorage.getItem("todolist") != null) {
+                var printoutlist = JSON.parse(localStorage.getItem("todolist"));
+                for (var i = 0; i < printoutlist.length; i++) {
+                    var listID = printoutlist[i].taskid;
+                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + listID + ">" + printoutlist[i].taskname + sCloseiconbutton + "</li>");
                 }
             }
 
@@ -71,23 +69,25 @@
             }
 
             //todolistelement prototype
-            function pTolistElement(name, type, status, time) {
+            function pTolistElement(id, name) {
+                this.taskid = id;
                 this.taskname = name;
-                this.tasktype = type;
-                this.taskstatus = status;
-                this.finishtime = time;
             }
 
             $("#input_list").keypress(function (event) {
                 if (event.which == 13 && $("#input_list").val()) {
                     var IDlistelement = "li" + idnumber;
 
-                    //add delete button
-
                     $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + $("#input_list").val() + sCloseiconbutton + "</li>");
+                    $("#"+IDlistelement).css('display','none');
+                    $("#"+IDlistelement).slideDown(500,'swing');
 
-                    //save data to the localstorage
-                    localStorage.setItem(IDlistelement, $("#input_list").val());
+                    if (localStorage.getItem("todolist") != null) var Array_tasks = JSON.parse(localStorage.getItem("todolist"));
+                    else var Array_tasks = new Array;
+
+                    Array_tasks.push(new pTolistElement(IDlistelement, $("#input_list").val()));
+                    localStorage.setItem("todolist", JSON.stringify(Array_tasks));
+
                     $("#input_list").val("");
 
                     //test idnumber
@@ -110,8 +110,20 @@
                 aFinishtask.push($(this).text());
                 $("#finish_tasks").append("<li class=\"list-group-item\">" + $(this).text().slice(0, -1) + "</li>");
 
-                localStorage.removeItem(IDfinish);
-                $("#" + IDfinish).remove();
+                //delete localStorage delete
+                var todo_list = JSON.parse(localStorage.getItem("todolist"));
+                for (var i = 0; i < todo_list.length; i++) {
+                    if (todo_list[i].taskid == IDfinish) {
+                        console.log("id" + todo_list[i].taskid + " was removed");
+                        todo_list.splice(i, 1);
+                        $("#" + IDfinish).slideUp(500,'linear',function(){
+                            $("#" + IDfinish).remove();
+                        });
+                        break;
+                    }
+                }
+                localStorage.setItem("todolist", JSON.stringify(todo_list));
+
                 localStorage.setItem("finishedlist", JSON.stringify(aFinishtask));
             })
 
@@ -119,8 +131,16 @@
                 if ($("#input_list").val()) {
                     var IDlistelement = "li" + idnumber;
                     $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + $("#input_list").val() + "</li>");
-                    //save data to the localstorage
-                    localStorage.setItem(IDlistelement, $("#input_list").val());
+                    $("#"+IDlistelement).css('display','none');
+                    $("#"+IDlistelement).slideDown(500,'swing');
+
+                    //get the localStorage to do list
+                    var todo_list = JSON.parse(localStorage.getITem("todolist"));
+                    if (todo_list != null) {
+                        todo_list.push(new pTolistElement(IDlistelement, $("#input_list").val()));
+                    }
+                    //save data to localStorage
+                    localStorage.setItem("todolist", JSON.stringify(todo_list));
                     $("#input_list").val("");
 
                     //test idnumber
@@ -135,12 +155,23 @@
                 location.reload();
             })
 
-            $("#button_finish").click(function(){
-                localStorage.setItem("finishedlist",null);
+            $("#button_finish").click(function () {
+                localStorage.setItem("finishedlist", null);
                 location.reload();
             })
         })
     </script>
+
+    <style>
+        .fade li{
+            transition: all 0.4s ease-out;
+            opacity:0;
+            height:2em;
+        }
+        .fade li.show{
+            opacity:1;
+        }
+    </style>
 
     <div class="container">
         <!-- Toggleable Dynamic Tabs -->
@@ -166,51 +197,59 @@
 
             <!-- to do list -->
             <div id="to_do_list_tab" class="container tab-pane fade">
+                <!-- add list and show to do list -->
                 <br>
-                <h3>To do list
-                    <font size="3"> &nbsp
-                        <button id="bClear" size="5" type="button" class="btn btn-outline-primary">
-                            <span style="cursor:pointer">Clear List</span>
-                        </button>
-                    </font>
-                </h3>
-                <div class="form-group">
-                    <div class="col">
-                        <div class="input-group" style="width:auto;">
-                            <span class="input-group-btn" style="width:auto;">
-                                <button class="btn btn-outline-primary" type="button" id="b_Add">
-                                    <span style="cursor:pointer"> Add tasks</span>
+                <div class="card" styple="width=auto;">
+                    <br>
+                    <div class="card-block">
+                        <h4 class="card-title"> &nbsp To do list
+                            <font size="3"> &nbsp
+                                <button id="bClear" size="5" type="button" class="btn btn-outline-primary">
+                                    <span style="cursor:pointer">Clear List</span>
                                 </button>
-                            </span>
-                            <input id="input_list" value="" type="input_text" class="form-control" placeholder="e.g. homeworks" aria-label="e.g. homworks">
-                          <!--  <input type="input_text_content" class="form-control" placeholder="tasks information"> -->
-                        </div>
+                            </font>
+                        </h4>
+                        <p class="card-text">
+                            <div class="input-group" style="width:auto;">
+                                <span class="input-group-btn" style="width:auto;">
+                                    <button class="btn btn-outline-primary" type="button" id="b_Add">
+                                        <span style="cursor:pointer"> Add tasks</span>
+                                    </button>
+                                </span>
+                                <input id="input_list" value="" type="input_text" class="form-control" placeholder="e.g. homeworks" aria-label="e.g. homworks">
+                                <!--  <input type="input_text_content" class="form-control" placeholder="tasks information"> -->
+                            </div>
+                        </p>
                     </div>
-                </div>
+                    <br>
 
-                <div class="card" style="width:auto;">
-                    <label class="form-check-label">
-                        <ul class="list-group list-group-flush" id="to_do_list">
-                        </ul>
-                    </label>
-                </div>
+                    <div class="card" style="width:auto;">
+                        <label class="form-check-label">
+                            <ul class="list-group list-group-flush" id="to_do_list">
+                            </ul>
+                        </label>
+                    </div>
 
+                </div>
             </div>
 
             <!-- finished list -->
             <div id="finish_list_tab" class="container tab-pane fade">
                 <br>
                 <div class="card" style="width:auto;">
-                    <div class="card-block">
-                        <br>
-                        <h4 class="card-title"> &nbsp Finished Tasks Lists</h4>
+                    <br>
+                    <div class="card_block">
+                        <h4 class="card-title"> &nbsp Finished Tasks Lists
+                            <font size="3"> &nbsp
+                                <button id="button_finish" size="5" type="button" class="btn btn-outline-primary">
+                                    <span style="cursor:pointer">Clear Finished List</span>
+                                </button>
+                            </font>
+                        </h4>
                     </div>
+
                     <ul class="list-group list-group-flush" id="finish_tasks"></ul>
-                    <div class="card-block">
-                        <a id="button_finish" href="#" class="card-link"> &nbsp &nbsp Clear Finished Tasks</a>
-                    </div>
                 </div>
-                </p>
             </div>
         </div>
 
