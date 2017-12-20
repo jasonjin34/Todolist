@@ -108,7 +108,7 @@
                 console.log(aFinishtask);
 
                 aFinishtask.push($(this).text());
-                $("#finish_tasks").append("<li class=\"list-group-item\">" + $(this).text().slice(0, -1) + "</li>");
+                $("#finish_tasks").append("<li class=\"list-group-item\">"  +  $(this).text().slice(0, -1) + "</li>");
 
                 //delete localStorage delete
                 var todo_list = JSON.parse(localStorage.getItem("todolist"));
@@ -130,7 +130,7 @@
             $("#b_Add").click(function () {
                 if ($("#input_list").val()) {
                     var IDlistelement = "li" + idnumber;
-                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + $("#input_list").val() + "</li>");
+                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + $("#input_list").val() + sCloseiconbutton +"</li>");
                     $("#"+IDlistelement).css('display','none');
                     $("#"+IDlistelement).slideDown(500,'swing');
 
