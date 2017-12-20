@@ -32,7 +32,7 @@
 
 <body>
     <script>
-        var sCloseiconbutton = "<button id=\"sClose\" type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>";
+        var sCloseiconbutton = "<button type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\"> <span style=\"cursor:pointer\"> &times; </span></span></button>";
 
         $(document).ready(function () {
             if (localStorage.getItem("idnumber") == null) {
@@ -49,11 +49,11 @@
             }
 
             //output from the saved to do list
-            if (localStorage.getItem("todolist") != null) {
-                var printoutlist = JSON.parse(localStorage.getItem("todolist"));
+            if (JSON.parse(localStorage.getItem("todolist")) != null) {
+                var printoutlist = JSON.parse(localStorage.getItem("todolist"))
                 for (var i = 0; i < printoutlist.length; i++) {
                     var listID = printoutlist[i].taskid;
-                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + listID + ">" + printoutlist[i].taskname + sCloseiconbutton + "</li>");
+                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + listID + ">" + "<span style=\"cursor:pointer\">" + printoutlist[i].taskname + sCloseiconbutton + "</span> </li>");
                 }
             }
 
@@ -61,7 +61,7 @@
             if (aFinishtask != null) {
                 for (var i = 0; i < aFinishtask.length; i++) {
                     if (aFinishtask.length == 0) break;
-                    $("#finish_tasks").append("<li class=\"list-group-item\">" + aFinishtask[i].slice(0, -1) + "</li>");
+                    $("#finish_tasks").append("<li class=\"list-group-item\">" + aFinishtask[i].slice(0, -4) + "</li>");
                 }
             }
             else if (aFinishtask == null) {
@@ -78,12 +78,13 @@
                 if (event.which == 13 && $("#input_list").val()) {
                     var IDlistelement = "li" + idnumber;
 
-                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + $("#input_list").val() + sCloseiconbutton + "</li>");
-                    $("#"+IDlistelement).css('display','none');
-                    $("#"+IDlistelement).slideDown(500,'swing');
+                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + "<span style=\"cursor:pointer\">" + $("#input_list").val() + sCloseiconbutton + "</span>" +"</li>");
+                    $("#" + IDlistelement).css('display', 'none');
+                    $("#" + IDlistelement).slideDown(500, 'swing');
 
-                    if (localStorage.getItem("todolist") != null) var Array_tasks = JSON.parse(localStorage.getItem("todolist"));
-                    else var Array_tasks = new Array;
+                    var Array_tasks;
+                    if (JSON.parse(localStorage.getItem("todolist")) != null) Array_tasks = JSON.parse(localStorage.getItem("todolist"));
+                    else  Array_tasks = new Array;
 
                     Array_tasks.push(new pTolistElement(IDlistelement, $("#input_list").val()));
                     localStorage.setItem("todolist", JSON.stringify(Array_tasks));
@@ -108,7 +109,7 @@
                 console.log(aFinishtask);
 
                 aFinishtask.push($(this).text());
-                $("#finish_tasks").append("<li class=\"list-group-item\">"  +  $(this).text().slice(0, -1) + "</li>");
+                $("#finish_tasks").append("<li class=\"list-group-item\">" + $(this).text().slice(0, -4) + "</li>");
 
                 //delete localStorage delete
                 var todo_list = JSON.parse(localStorage.getItem("todolist"));
@@ -116,7 +117,7 @@
                     if (todo_list[i].taskid == IDfinish) {
                         console.log("id" + todo_list[i].taskid + " was removed");
                         todo_list.splice(i, 1);
-                        $("#" + IDfinish).slideUp(500,'linear',function(){
+                        $("#" + IDfinish).slideUp(500, 'linear', function () {
                             $("#" + IDfinish).remove();
                         });
                         break;
@@ -130,12 +131,12 @@
             $("#b_Add").click(function () {
                 if ($("#input_list").val()) {
                     var IDlistelement = "li" + idnumber;
-                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + $("#input_list").val() + sCloseiconbutton +"</li>");
-                    $("#"+IDlistelement).css('display','none');
-                    $("#"+IDlistelement).slideDown(500,'swing');
+                    $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + "<span style=\"cursor:pointer\">" + $("#input_list").val() + sCloseiconbutton + "</span>" + "</li>");
+                    $("#" + IDlistelement).css('display', 'none');
+                    $("#" + IDlistelement).slideDown(500, 'swing');
 
                     //get the localStorage to do list
-                    var todo_list = JSON.parse(localStorage.getITem("todolist"));
+                    var todo_list = JSON.parse(localStorage.getItem("todolist"));
                     if (todo_list != null) {
                         todo_list.push(new pTolistElement(IDlistelement, $("#input_list").val()));
                     }
@@ -163,13 +164,14 @@
     </script>
 
     <style>
-        .fade li{
+        .fade li {
             transition: all 0.4s ease-out;
-            opacity:0;
-            height:2em;
+            opacity: 0;
+            height: 2em;
         }
-        .fade li.show{
-            opacity:1;
+
+        .fade li.show {
+            opacity: 1;
         }
     </style>
 
@@ -224,10 +226,8 @@
                     <br>
 
                     <div class="card" style="width:auto;">
-                        <label class="form-check-label">
                             <ul class="list-group list-group-flush" id="to_do_list">
                             </ul>
-                        </label>
                     </div>
 
                 </div>
