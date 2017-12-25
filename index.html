@@ -28,9 +28,28 @@
     <!-- mobile adjustement -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- jQuery library -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="jquery.ui.touch-punch.min.js"></script>
+
 </head>
 
 <body>
+    <style>
+        .fade li {
+            transition: all 0.4s ease-out;
+            opacity: 0;
+            height: 2em;
+        }
+
+        .fade li.show {
+            opacity: 1;
+        }
+
+        .list-group-item:hover {
+            background-color: #EAF3FA;
+        }
+    </style>
     <script>
         $(document).ready(function () {
             var sCloseiconbutton = "<button type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\"> <span style=\"cursor:pointer\"> &times;</span></span></button>";
@@ -44,7 +63,7 @@
             //output from the saved to do list
             var todo_list = (JSON.parse(localStorage.getItem("todolist")) == null) ? new Array : JSON.parse(localStorage.getItem("todolist"));
             if (todo_list != null) todo_list.map(function (e) {
-                $("#to_do_list").append("<li class=\"list-group-item\" id=" + e.taskid + ">" + "<span style=\"cursor:pointer\"> <abbr style=\"text-decoration:none; cursor:pointer\" title=\" double click to edit your task\">" + e.taskname + "</abbr>" + fCloseicon(""+e.taskid) + "</span> </li>");
+                $("#to_do_list").append("<li style=\"cursor:s-resize\" class=\"list-group-item\" id=" + e.taskid + ">" + "<span style=\"cursor:pointer\"> <abbr style=\"text-decoration:none; cursor:pointer\" title=\" double click to edit your task\">" + e.taskname + "</abbr>" + fCloseicon("" + e.taskid) + "</span> </li>");
             });
 
             //save the first localstorage for the finishedlist
@@ -52,7 +71,7 @@
             //output from the finished 
             if (aFinishtask != null) {
                 aFinishtask.map(function (e) {
-                    $("#finish_tasks").append("<li class=\"list-group-item\">" + e.slice(0, -4) + "</li>");
+                    $("#finish_tasks").append("<li style=\"cursor:s-resize\" class=\"list-group-item\">" + e.slice(0, -4) + "</li>");
                 })
             }
             else if (aFinishtask == null) aFinishtask = new Array;
@@ -61,12 +80,12 @@
             function pTolistElement(id, name) {
                 this.taskid = id;
                 this.taskname = name;
-            }   
+            }
 
             /*add tasks in the to do list*/
             function fAddtasks() {
                 var IDlistelement = "li" + idnumber;
-                $("#to_do_list").append("<li class=\"list-group-item\" id=" + IDlistelement + ">" + "<span style=\"cursor:pointer\"> <abbr style=\"text-decoration:none; cursor:pointer\" title=\" double click to edit your task\">" + $("#input_list").val() + "</abbr>" + fCloseicon(IDlistelement) + "</span>" + "</li>");
+                $("#to_do_list").append("<li style=\"cursor:s-resize\" class=\"list-group-item\" id=" + IDlistelement + ">" + "<span style=\"cursor:pointer\"> <abbr style=\"text-decoration:none; cursor:pointer\" title=\" double click to edit your task\">" + $("#input_list").val() + "</abbr>" + fCloseicon(IDlistelement) + "</span>" + "</li>");
                 $("#" + IDlistelement).css('display', 'none');
                 $("#" + IDlistelement).slideDown(500, 'swing');
 
@@ -97,8 +116,8 @@
             $("#to_do_list").on("click", ".close", function (event) {
                 var IDfinish = $(this).attr("value");
                 console.log(IDfinish);
-                aFinishtask.push($("#"+IDfinish).text());
-                $("#finish_tasks").append("<li class=\"list-group-item\">" + $("#"+IDfinish).text().slice(0, -3) + "</li>");
+                aFinishtask.push($("#" + IDfinish).text());
+                $("#finish_tasks").append("<li class=\"list-group-item\">" + $("#" + IDfinish).text().slice(0, -3) + "</li>");
 
                 //delete the to do list element
                 var index = todo_list.map(function (e) { return e.taskid; }).indexOf(IDfinish);
@@ -116,12 +135,15 @@
             //trigger the edit event and get edittaskID
             $("#to_do_list").on("dblclick", "li", function (event) {
                 event.preventDefault();
-                $("#taskedit").modal('toggle');
                 edittaskID = $(this).attr("id");
+                $("#input_edittask").val($("#" + edittaskID).text().slice(0, -4));
+                // $("#input_edittask").attr("placeholder", $("#" + edittaskID).text().slice(0, -4));
+                $("#taskedit").modal('toggle');
             })
             //edit function
             function edittask() {
-                var sNewtask = $("#input_edittask").val() + sCloseiconbutton;
+                var sNewtask = "<abbr style=\"text-decoration:none; cursor:pointer\" title=\" double click to edit your task\">" + $("#input_edittask").val() + "</abbr>"
+                    + fCloseicon(edittaskID);
                 $("#" + edittaskID).html(sNewtask);
 
                 var index = todo_list.map(function (e) { return e.taskid; }).indexOf(edittaskID);
@@ -151,21 +173,13 @@
                 localStorage.setItem("finishedlist", null);
                 location.reload();
             })
+            /*drag to move the to do list and finished list*/
+            $("#to_do_list").sortable({ axis: "y", containment: "#to_do_list_tab" });
+            $("#finish_tasks").sortable({ axis: "y", containment: "#finish_list_tab" });
+
+
         })
-
     </script>
-
-    <style>
-        .fade li {
-            transition: all 0.4s ease-out;
-            opacity: 0;
-            height: 2em;
-        }
-
-        .fade li.show {
-            opacity: 1;
-        }
-    </style>
     <!-- setup modal for edit the task name -->
     <div id="taskedit" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -175,7 +189,7 @@
                     <h4 class="modal-title">Edit To Do List Task</h4>
                 </div>
                 <div class="modal-body">
-                    <input id="input_edittask" value="" type="input_text" placeholder="type the new task">
+                    <input id="input_edittask" value="" type="input_text" placeholder=" ">
                 </div>
                 <div class="modal-footer">
                     <button id="button_modal" type="button" class="btn btn-primary" data-dimiss="modal"> Confirm </button>
@@ -238,7 +252,6 @@
                         <ul class="list-group list-group-flush" id="to_do_list">
                         </ul>
                     </div>
-
                 </div>
             </div>
 
