@@ -4,33 +4,27 @@
 <head>
     <meta charset="utef-8">
     <title>Web developing learing</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+    <!-- Latest compiled and minified JavaScript -->
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
     <!-- Last complied and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
-
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
     <!-- Popper js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
-
     <!-- compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
-
     <!-- mobile adjustement -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <!-- jQuery library -->
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="jquery.ui.touch-punch.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
 
 </head>
 
@@ -48,6 +42,10 @@
 
         .list-group-item:hover {
             background-color: #EAF3FA;
+        }
+
+        .navbar {
+            min-height: 10px;
         }
     </style>
     <script>
@@ -71,7 +69,7 @@
             //output from the finished 
             if (aFinishtask != null) {
                 aFinishtask.map(function (e) {
-                    $("#finish_tasks").append("<li style=\"cursor:s-resize\" class=\"list-group-item\">" + e.slice(0, -4) + "</li>");
+                    $("#finish_tasks").append("<li style=\"cursor:s-resize\" class=\"list-group-item\" id=" + e.taskid + ">" + e.taskname + "</li>");
                 })
             }
             else if (aFinishtask == null) aFinishtask = new Array;
@@ -116,8 +114,8 @@
             $("#to_do_list").on("click", ".close", function (event) {
                 var IDfinish = $(this).attr("value");
                 console.log(IDfinish);
-                aFinishtask.push($("#" + IDfinish).text());
-                $("#finish_tasks").append("<li class=\"list-group-item\">" + $("#" + IDfinish).text().slice(0, -3) + "</li>");
+                aFinishtask.push(new pTolistElement(IDfinish, $("#" + IDfinish).text().slice(0, -3)));
+                $("#finish_tasks").append("<li class=\"list-group-item\" id=" + IDfinish + ">" + $("#" + IDfinish).text().slice(0, -3) + "</li>");
 
                 //delete the to do list element
                 var index = todo_list.map(function (e) { return e.taskid; }).indexOf(IDfinish);
@@ -176,8 +174,31 @@
             /*drag to move the to do list and finished list*/
             $("#to_do_list").sortable({ axis: "y", containment: "#to_do_list_tab" });
             $("#finish_tasks").sortable({ axis: "y", containment: "#finish_list_tab" });
+            /*Search function*/
+            var taskinput, filter;
+            $("#searchtasks").keyup(function (event) {
+                taskinput = $("#searchtasks").val();
+                filter = taskinput.toUpperCase();
 
-
+                console.log(filter);
+                if ($("#searchtasks").val() != "") {
+                    todo_list.map(function (e) {
+                        if (e.taskname.toUpperCase().indexOf(filter) <= -1) {
+                            $("#" + e.taskid).slideUp(900, "linear");
+                        }
+                    }
+                    );
+                    aFinishtask.map(function (e) {
+                        if (e.taskname.toUpperCase().indexOf(filter) <= -1) {
+                            $("#" + e.taskid).slideUp(900, "linear");
+                        }
+                    })
+                }
+                else {
+                    todo_list.map(function (e) { $("#" + e.taskid).slideDown(1000, "linear"); });
+                    aFinishtask.map(function(e){$("#" + e.taskid).slideDown(1000,"linear")});
+                }
+            })
         })
     </script>
     <!-- setup modal for edit the task name -->
@@ -199,6 +220,7 @@
     </div>
 
     <div class="container">
+        <br>
         <!-- Toggleable Dynamic Tabs -->
         <ul class="nav nav-tabs">
             <li class="nav-item">
@@ -210,8 +232,14 @@
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#finish_list_tab">Finish list</a>
             </li>
-        </ul>
 
+            <li class="nav-item">
+                <div class="input-group">
+                    <input id="searchtasks" type="text" class="form-control" placeholder="Search for tasks...">
+                </div>
+            </li>
+
+        </ul>
         <!-- Tab panes -->
         <div class="tab-content">
             <div id="home" class="container tab-pane active">
@@ -224,7 +252,7 @@
             <div id="to_do_list_tab" class="container tab-pane fade">
                 <!-- add list and show to do list -->
                 <br>
-                <div class="card" styple="width=auto;">
+                <div class="card" style="width:auto;">
                     <br>
                     <div class="card-block">
                         <h4 class="card-title"> &nbsp To do list
